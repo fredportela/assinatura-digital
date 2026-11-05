@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assinador digital</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #17243a; background: #f1f4f8; }
+    body { margin: 0; padding: 40px 20px; }
+    main { max-width: 640px; margin: auto; padding: 32px; background: white; border-radius: 16px; box-shadow: 0 10px 40px #17243a10; }
+    h1 { margin-top: 0; } p { line-height: 1.6; } label { display: block; font-weight: 600; margin: 24px 0 8px; }
+    input, select, button { box-sizing: border-box; font: inherit; width: 100%; padding: 12px; border: 1px solid #aeb9c9; border-radius: 8px; }
+    button { margin-top: 16px; background: #174a9c; color: white; cursor: pointer; border: 0; font-weight: 600; }
+    button.secondary { background: #e8eef8; color: #174a9c; } button:disabled { opacity: .5; cursor: wait; }
+    #status { min-height: 48px; } #download { display: inline-block; margin-top: 12px; font-weight: 600; }
+    [hidden] { display: none !important; } small { display: block; margin-top: 8px; line-height: 1.6; }
+  </style>
+  <script defer src="https://cdn.lacunasoftware.com/libs/web-pki/lacuna-web-pki-2.19.0.min.js"></script>
+  <script defer src="/assinador.js"></script>
+</head>
+<body>
+<main>
+  <h1>Assinador digital</h1>
+  <p>Envie o documento e assine com seu certificado digital.</p>
+  <form id="formulario">
+    <label for="arquivo">Documento</label>
+    <input id="arquivo" type="file" accept=".pdf,.docx" required>
+    <small>PDF ou DOCX, até 20 MB. PDF retorna assinado em PDF. DOCX retorna em .p7s com o documento original incluído; a assinatura não aparece dentro do Word.</small>
+    <label for="certificado">Certificado digital</label>
+    <select id="certificado" required disabled><option value="">Carregando certificados…</option></select>
+    <button id="atualizar" class="secondary" type="button" disabled>Atualizar certificados</button>
+    <button id="assinar" type="submit" disabled>Assinar documento</button>
+  </form>
+  <p id="status" role="status" aria-live="polite">Inicializando Web PKI…</p>
+  <a id="instalar" href="https://get.webpkiplugin.com/" target="_blank" rel="noopener noreferrer" hidden>Instalar Web PKI</a>
+  <a id="download" hidden>Baixar documento assinado</a>
+</main>
+</body>
+</html>

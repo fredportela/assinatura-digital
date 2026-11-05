@@ -1,0 +1,19 @@
+server:
+  port: ${PORT:8081}
+  error:
+    include-stacktrace: never
+
+app:
+  web-pki:
+    rest-pki-url: ${WEBPKI_RESTPKI_URL:https://restpki.lacunasoftware.com/}
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 21MB
+  restpki:
+    accessToken: ${RESTPKI_TOKEN}
+    endpoint: ${RESTPKI_ENDPOINT:https://pki.rest/}
+
+

@@ -1,0 +1,194 @@
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Assinatura Digital — início">
+    <span class="brand-icon" aria-hidden="true">✦</span>
+    Assinatura
+    <span class="brand-light">Digital</span>
+  </a>
+  <span class="header-tag">
+    <span class="dot"></span>
+    Certificado ICP-Brasil
+  </span>
+</header>
+<main>
+  <div class="intro">
+    <div class="eyebrow">DOCUMENTOS · ASSINATURA DIGITAL</div>
+    <h1>
+      Seu documento.
+      <br />
+      Sua assinatura,
+      <span>com validade.</span>
+    </h1>
+    <p>Envie um arquivo e assine com o certificado digital instalado no seu computador ou token.</p>
+  </div>
+  <div class="workspace">
+    <section class="panel" aria-labelledby="document-title">
+      <div class="section-title">
+        <span class="step">01</span>
+        <div>
+          <h2 id="document-title">Escolha o documento</h2>
+          <p>PDF ou DOCX, até 20 MB</p>
+        </div>
+      </div>
+      <input
+        #fileInput
+        class="sr-only"
+        id="file-upload"
+        type="file"
+        accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        (change)="onFile($event)"
+        [disabled]="busy" />
+      <div
+        class="dropzone"
+        [class.dragging]="dragging"
+        (dragover)="$event.preventDefault(); dragging = !busy"
+        (dragleave)="dragging = false"
+        (drop)="onDrop($event)">
+        <span class="upload-icon" aria-hidden="true">↥</span>
+        <h3>Arraste seu documento até aqui</h3>
+        <p>ou selecione um arquivo no computador</p>
+        <button type="button" class="button secondary" (click)="fileInput.click()" [disabled]="busy">
+          Selecionar arquivo
+          <span aria-hidden="true">＋</span>
+        </button>
+      </div>
+      @if (file) {
+        <div class="file-card">
+          <span class="file-type">{{ isPdf ? 'PDF' : 'DOCX' }}</span>
+          <div class="file-info">
+            <strong>{{ file.name }}</strong>
+            <span>
+              {{ file.size / 1024 / 1024 | number: '1.2-2' }} MB · {{ isPdf ? 'Assinatura PAdES' : 'Assinatura CAdES' }}
+            </span>
+          </div>
+          <button type="button" class="icon-button" (click)="remove()" [disabled]="busy" aria-label="Remover arquivo">
+            ×
+          </button>
+        </div>
+      }
+      <div class="format-note">
+        <span aria-hidden="true">ⓘ</span>
+        <p>
+          <strong>Como você recebe o arquivo</strong>
+          <br />
+          PDF: documento com assinatura digital incorporada.
+          <br />
+          DOCX: pacote
+          <strong>.p7s</strong>
+          com o documento original e a assinatura digital. Para visualizar o DOCX, extraia-o com um leitor CAdES.
+        </p>
+      </div>
+    </section>
+    <section class="panel certificate-panel" aria-labelledby="certificate-title">
+      <div class="section-title">
+        <span class="step">02</span>
+        <div>
+          <h2 id="certificate-title">Selecione seu certificado</h2>
+          <p>Use seu certificado A1 ou A3 pelo Web PKI</p>
+        </div>
+      </div>
+      <div class="connection">
+        <span class="status-dot" [class.connected]="ready"></span>
+        <span>
+          {{
+            connecting ? 'Conectando ao Web PKI…' : ready ? 'Web PKI conectado' : 'Conecte seu certificado para começar'
+          }}
+        </span>
+      </div>
+      <button type="button" class="button secondary connect-button" (click)="connect()" [disabled]="connecting || busy">
+        {{ connecting ? 'Buscando certificados…' : ready ? 'Atualizar certificados' : 'Conectar Web PKI' }}
+        <span aria-hidden="true">↻</span>
+      </button>
+      @if (certificates.length) {
+        <label for="certificate">Certificado digital</label>
+        <select id="certificate" [(ngModel)]="thumbprint" [disabled]="busy || connecting">
+          <option value="" disabled>Selecione um certificado</option>
+          @for (cert of certificates; track cert.thumbprint) {
+            <option [value]="cert.thumbprint" [disabled]="expired(cert)">
+              {{ cert.subjectName }}{{ expired(cert) ? ' — vencido' : '' }}
+            </option>
+          }
+        </select>
+      }
+      @if (selected; as cert) {
+        <div class="certificate-detail">
+          <span class="cert-symbol" aria-hidden="true">✓</span>
+          <div>
+            <strong>{{ cert.subjectName }}</strong>
+            @if (cert.issuerName) {
+              <p>Emissor: {{ cert.issuerName }}</p>
+            }
+            @if (cert.validityEnd) {
+              <p>Válido até {{ cert.validityEnd | date: 'dd/MM/yyyy' }}</p>
+            }
+          </div>
+        </div>
+      }
+      @if (selected; as cert) {
+        <p class="help">Impressão digital: {{ cert.thumbprint }}</p>
+      }
+      <p class="help">
+        Conecte o token ou cartão antes de buscar certificados. A chave privada é utilizada pelo Web PKI no seu
+        dispositivo.
+      </p>
+      @if (missingPlugin) {
+        <a class="text-link" href="https://get.webpkiplugin.com/" target="_blank" rel="noopener noreferrer">
+          Instalar ou atualizar Web PKI ↗
+        </a>
+      }
+      <div class="sign-area">
+        <button type="button" class="button primary" [disabled]="!canSign" (click)="sign()">
+          {{ busy ? 'Assinando documento…' : stage === 'done' ? 'Assinar novamente' : 'Assinar documento' }}
+          <span aria-hidden="true">→</span>
+        </button>
+        <p>O Web PKI pode solicitar o PIN do seu certificado.</p>
+      </div>
+    </section>
+  </div>
+  @if (error) {
+    <div class="feedback error" role="alert">
+      <strong>Não foi possível concluir</strong>
+      <p>{{ error }}</p>
+    </div>
+  }
+  @if (notice) {
+    <div class="feedback" role="status">{{ notice }}</div>
+  }
+  @if (busy) {
+    <section class="feedback progress" role="status" aria-live="polite" aria-atomic="true">
+      <span class="spinner" aria-hidden="true"></span>
+      <div>
+        <strong>
+          {{
+            stage === 'uploading'
+              ? uploadProgress < 100
+                ? 'Enviando documento · ' + uploadProgress + '%'
+                : 'Preparando assinatura…'
+              : stage === 'signing'
+                ? 'Autorize a assinatura no Web PKI'
+                : 'Validando assinatura e preparando o download…'
+          }}
+        </strong>
+        <p>Mantenha esta página aberta até a conclusão.</p>
+      </div>
+    </section>
+  }
+  @if (resultUrl) {
+    <section class="success" role="status">
+      <span class="success-icon" aria-hidden="true">✓</span>
+      <div>
+        <h2>Documento assinado</h2>
+        <p>{{ resultName }} · {{ resultFormat }}</p>
+        <p>A assinatura foi finalizada pelo servidor. Baixe o arquivo antes de sair da página.</p>
+      </div>
+      <a class="button primary" [href]="resultUrl" [download]="resultName">
+        Baixar arquivo
+        <span aria-hidden="true">↓</span>
+      </a>
+    </section>
+  }
+  <footer>
+    <span>Assinatura Digital</span>
+    <p>Assinaturas com Web PKI e Rest PKI · PDF / DOCX</p>
+    <span class="footer-mark" aria-hidden="true">✦</span>
+  </footer>
+</main>

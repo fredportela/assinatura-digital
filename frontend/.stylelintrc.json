@@ -1,0 +1,7 @@
+{
+  "extends": ["stylelint-config-recommended-scss"],
+  "rules": {
+    "no-descending-specificity": null
+  },
+  "ignoreFiles": ["node_modules/**", "dist/**", ".angular/**", "coverage/**"]
+}

@@ -1,0 +1,34 @@
+# Maven build output
+/target/
+
+# Java runtime artifacts
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+
+# IDE metadata
+/.idea/
+*.iml
+*.ipr
+*.iws
+/.classpath
+/.project
+/.settings/
+/.factorypath
+/.vscode/
+/bin/
+
+# Local environment and signing credentials
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.jks
+*.keystore
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
